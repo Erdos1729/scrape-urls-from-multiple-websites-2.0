@@ -9,6 +9,7 @@ import openpyxl
 import http.client
 import feedparser
 import csv
+import datetime
 
 def read_csv(path = './input_file/all_urls.csv'):
     with open(path, encoding='utf-8') as f:
@@ -33,6 +34,7 @@ sheet.cell(row=1, column=2).value='url'
 sheet.cell(row=1, column=3).value='title'
 sheet.cell(row=1, column=4).value='corrected url'
 sheet.cell(row=1, column=5).value='source'
+sheet.cell(row=1, column=6).value='extract_date'
 
 wb.save('./output_file/scraped_pr_links.xlsx')
 
@@ -62,8 +64,6 @@ for lop in range(len(getALLlinks)):
         skippedlink = skippedlink + 1
         #html_page = urlopen(req)
         print('Unable to open link no.' + str(processedlink) + ": " + getALLlinks[lop])
-        #sheet2.cell(row=excel2counterrow, column=1).value = getALLlinks[lop]
-        #excel2counterrow = excel2counterrow+1
 
     except:
         skippedlink = skippedlink + 1
@@ -79,8 +79,7 @@ for lop in range(len(getALLlinks)):
         for link in soup.findAll('a', href=True):
             # skip useless links
 
-            if link['href'] == '' or link['href'].startswith(
-                    '#'):  # if link['href'] == '' or link['href'].startswith('#'):     if link['href'] == '':
+            if link['href'] == '' or link['href'].startswith('#'):
                 continue
 
             # initialize the link
@@ -107,8 +106,7 @@ for lop in range(len(getALLlinks)):
 
             if ModLink.startswith("/"):
                 NewLink = PLink + ModLink
-                # words = NewLink.split("/")
-                # NewLink = "/".join(sorted(set(words), key=words.index))
+
             else:
                 NewLink = ModLink
 
@@ -125,6 +123,7 @@ for lop in range(len(getALLlinks)):
             sheetopen.cell(row=excelcounterrow, column=3).value = thisLink['title'].strip().replace('','')
             sheetopen.cell(row=excelcounterrow, column=4).value = NewLink.replace('','')
             sheetopen.cell(row=excelcounterrow, column=5).value = getALLlinks[lop]
+            sheetopen.cell(row=excelcounterrow, column=6).value = datetime.date.today()
             excelcounterrow = excelcounterrow+1
             flag = 1
 
@@ -157,6 +156,7 @@ for lop in range(len(getALLlinks)):
                sheetopen.cell(row=excelcounterrow, column=3).value = linktitle
                sheetopen.cell(row=excelcounterrow, column=4).value = NewLink
                sheetopen.cell(row=excelcounterrow, column=5).value = getALLlinks[lop]
+               sheetopen.cell(row=excelcounterrow, column=6).value = datetime.date.today()
                excelcounterrow = excelcounterrow + 1
 
 
