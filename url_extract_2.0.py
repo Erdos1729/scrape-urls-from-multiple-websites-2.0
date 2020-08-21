@@ -10,6 +10,8 @@ import http.client
 import feedparser
 import csv
 import datetime
+import os
+import pandas as pd
 
 def read_csv(path = './input_file/all_urls.csv'):
     with open(path, encoding='utf-8') as f:
@@ -36,7 +38,7 @@ sheet.cell(row=1, column=4).value='corrected url'
 sheet.cell(row=1, column=5).value='source'
 sheet.cell(row=1, column=6).value='extract_date'
 
-wb.save('./output_file/scraped_pr_links.xlsx')
+wb.save('./output_file/export/scraped_pr_links.xlsx')
 
 
 excelcounterrow = 2
@@ -53,7 +55,7 @@ for lop in range(len(getALLlinks)):
 
     print("Processing link no." + str(processedlink) + ": " + getALLlinks[lop])
 
-    wbopen = openpyxl.load_workbook('./output_file/scraped_pr_links.xlsx')
+    wbopen = openpyxl.load_workbook('./output_file/export/scraped_pr_links.xlsx')
     sheetopen = wbopen.active
 
     try:
@@ -147,8 +149,7 @@ for lop in range(len(getALLlinks)):
 
                if ModLink.startswith("/"):
                    NewLink = PLink + ModLink
-                   # words = NewLink.split("/")
-                   # NewLink = "/".join(sorted(set(words), key=words.index))
+
                else:
                    NewLink = ModLink
 
@@ -159,19 +160,69 @@ for lop in range(len(getALLlinks)):
                sheetopen.cell(row=excelcounterrow, column=6).value = datetime.date.today()
                excelcounterrow = excelcounterrow + 1
 
-
-            #hashableLink = (thisLink['url'].strip(),thisLink['title'].strip(),NewLink,getALLlinks[lop])
-            # store the result
-            #if hashableLink not in links:
-                #links.append(hashableLink)
-
-    for i in range(len(sheetopen['url']) - 1):
-        i = i + 1
-        sheetopen.cell(row=i + 1, column=1).value = i
-
     sheet.title = 'Output'
-    wbopen.save('./output_file/scraped_pr_links.xlsx')
+    wbopen.save('./output_file/export/scraped_pr_links.xlsx')
+
+wbopen1 = openpyxl.load_workbook('./output_file/export/scraped_pr_links.xlsx')
+ws = wbopen1.get_sheet_by_name('Sheet')  # get sheet by name
+sheetopen1 = wbopen1.active
+print(len(sheetopen1['url']))
+
+for i in range(1, len(sheetopen1['url']) + 1):
+
+    if i == 1:
+        sheetopen1.cell(row=i, column=1).value = 'id'
+    elif i == len(sheetopen1['url']) + 1:
+        sheetopen1.cell(row=i, column=1).value = ''
+    else:
+        sheetopen1.cell(row=i, column=1).value = i - 1
+
+    values = [ws["C" + str(i)].value, ws["D" + str(i)].value]  # collect the data
+    values = [str(l) for l in values]
+    # print(values)
+    sheetopen1.cell(row=i, column=7).value = ' '.join(values) # concat column C and D
+
+sheetopen1.cell(row=1, column=7).value = 'concat'
+wbopen1.save('./output_file/export/scraped_pr_links.xlsx')
 
 print("\nTotal Processed Links: " + str(processedlink))
 print("Total Unprocessed Links: " + str(skippedlink))
-print("Output File Generated")
+
+def load_data(name1, name2):
+    df, df1 = pd.read_excel(name1), pd.read_excel(name2)
+    return df, df1
+
+filename = './output_file/export/scraped_pr_links.xlsx'
+filename1 = './output_file/database/allextract_merged.xlsx'
+filename2 = './output_file/Final_output.csv'
+
+if os.path.exists(filename1):
+    print("Identifying latest links.....")
+
+    # Read an excel with two sheets into two dataframes
+
+    df, df1 = load_data(filename, filename1)
+
+    lookup = []
+    for i in [str(l) for l in df['concat']]:
+        if i in [str(x) for x in df1['concat']]:
+            lookup.append('True')
+        else: lookup.append('False')
+
+    df2 = df
+    df2['lookup'] = lookup
+    df2.to_csv(filename2, index=False)
+
+    df2['lookup'] = [str(m) for m in df2['lookup']]
+    print(df[df2['lookup'] == 'False'])
+
+    df1 = df1.append(df[df2['lookup'] == 'False'])
+
+    # database_update = pd.merge(df2, df1, how = 'left')
+    # df1 = database_update
+    df1.to_excel(filename1, index=False)
+    # print(len(df1['concat']))
+
+else:
+    wbopen1.save(filename1)
+    wbopen1.save(filename2)
