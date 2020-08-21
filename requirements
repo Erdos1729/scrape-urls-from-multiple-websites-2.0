@@ -1,0 +1,11 @@
+bs4
+re
+urllib
+fake_useragent
+openpyxl
+http.client
+feedparser
+csv
+datetime
+os
+pandas
