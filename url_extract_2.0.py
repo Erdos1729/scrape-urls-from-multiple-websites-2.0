@@ -166,7 +166,7 @@ for lop in range(len(getALLlinks)):
 wbopen1 = openpyxl.load_workbook('./output_file/export/scraped_pr_links.xlsx')
 ws = wbopen1.get_sheet_by_name('Sheet')  # get sheet by name
 sheetopen1 = wbopen1.active
-print(len(sheetopen1['url']))
+# print(len(sheetopen1['url']))
 
 for i in range(1, len(sheetopen1['url']) + 1):
 
@@ -214,7 +214,7 @@ if os.path.exists(filename1):
     df2.to_csv(filename2, index=False)
 
     df2['lookup'] = [str(m) for m in df2['lookup']]
-    print(df[df2['lookup'] == 'False'])
+    # print(df[df2['lookup'] == 'False'])
 
     df1 = df1.append(df[df2['lookup'] == 'False'])
 
