@@ -1,4 +1,4 @@
-## scrape urls from multiple websites 2.0
+## Scrape urls from multiple websites 2.0
  
 This repository will help you to extract all the urls reported on a website and save it in an excel file. This code works on multiple weblinks provided in a csv file and thus saves you a lot of manual work. If you are working on scouting multiple websites for identifying press releases, presentations, annual reports etc., this code will come in handy and save alot of man-hours.
 
